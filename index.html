@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>FNAF Multiplayer: Final Version</title>
+    <title>FNAF Multiplayer: Firewall Fix</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
@@ -110,7 +110,7 @@
 
     <div id="menu" class="screen">
         <h1>FIVE NIGHTS</h1>
-        <p style="color:#888;">2-PLAYER UPDATE</p>
+        <p style="color:#888;">NETWORK FIX UPDATE</p>
         <button class="btn" onclick="startSolo()">SINGLE PLAYER</button>
         <button class="btn" onclick="openMultiMenu()">MULTIPLAYER</button>
     </div>
@@ -118,7 +118,7 @@
     <div id="multi-menu" class="screen hidden">
         <h1>MULTIPLAYER</h1>
         <p style="font-size:14px; color:#aaa; max-width:400px; text-align:center;">
-            TO PLAY ON TWO COMPUTERS:<br>Host this game on Replit or GitHub Pages.<br>Do not just open the file.
+            TO PLAY ON TWO COMPUTERS:<br>Host this game on Replit or use Live Server.<br>Do not just open the file.
         </p>
         <button class="btn" onclick="setupHost()">CREATE LOBBY</button>
         <br>
@@ -182,7 +182,6 @@
         <a-assets>
             <img id="wall-tex" src="wall.png"> 
             <img id="floor-tex" src="checker.png">
-            
             <a-asset-item id="freddy-glb" src="freddy.glb"></a-asset-item>
             <audio id="sfx-ambience" src="https://cdn.pixabay.com/download/audio/2022/10/14/audio_997996c56b.mp3" loop></audio>
             <audio id="sfx-blip" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8b8433b5d.mp3"></audio>
@@ -242,7 +241,19 @@
         };
 
         let peer = null, conn = null;
-        const PREFIX = "fnaf-local-v2-"; 
+        // Version 3 Prefix
+        const PREFIX = "fnaf-fixed-v3-"; 
+        
+        // --- STUN SERVER CONFIG (FIXES FIREWALLS) ---
+        const PEER_CONFIG = {
+            config: {
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'stun:stun2.l.google.com:19302' }
+                ]
+            }
+        };
 
         // --- CONTROLS ---
         window.addEventListener('keydown', (e) => { 
@@ -258,38 +269,27 @@
         }
 
         function setupHost() {
-            // Generate simple 4 digit ID
             const id = Math.floor(Math.random() * 9000 + 1000);
-            
             if(peer) peer.destroy();
             
-            // Create Host Peer
-            peer = new Peer(PREFIX + id);
+            // Add config to host
+            peer = new Peer(PREFIX + id, PEER_CONFIG);
             
             document.getElementById('multi-menu').classList.add('hidden');
             document.getElementById('lobby-screen').classList.remove('hidden');
             document.getElementById('lobby-code').innerText = id;
 
-            peer.on('open', (id) => {
-                console.log('Host ID generated:', id);
-            });
-
             peer.on('connection', (c) => {
                 conn = c;
-                console.log("New connection attempt...");
-                
                 conn.on('open', () => {
-                    console.log("Connection fully established!");
                     document.getElementById('lobby-status').innerText = "PLAYER 2 CONNECTED!";
                     document.getElementById('lobby-status').style.color = "lime";
                     document.getElementById('start-match-btn').style.display = "block";
                     setupNetEvents();
                 });
+                conn.on('close', () => alert("Connection dropped. Check your internet or try Mobile Hotspot."));
             });
-
-            peer.on('error', (err) => {
-                alert("Connection Error: " + err.type);
-            });
+            peer.on('error', (err) => alert("Host Error: " + err.type));
         }
 
         function joinLobby() {
@@ -298,32 +298,31 @@
             
             document.getElementById('connect-error').style.display = "none";
             const joinBtn = document.getElementById('join-btn');
-            joinBtn.innerText = "CONNECTING (WAIT 15s)...";
+            joinBtn.innerText = "TRYING TO CONNECT...";
             joinBtn.disabled = true;
             
             if(peer) peer.destroy();
-            peer = new Peer(); 
+            
+            // Add config to joiner
+            peer = new Peer(null, PEER_CONFIG); 
 
             peer.on('open', (myId) => {
                 const targetId = PREFIX + inputId;
-                console.log("Trying to join:", targetId);
-                
-                conn = peer.connect(targetId);
+                // Force reliable connection
+                conn = peer.connect(targetId, { reliable: true });
 
-                // Wait for the connection to officially open
                 conn.on('open', () => {
-                    console.log("Successfully joined!");
                     document.getElementById('multi-menu').classList.add('hidden');
                     document.getElementById('join-wait').classList.remove('hidden');
                     setupNetEvents();
                 });
 
-                // Increase timeout to 15 seconds (was 5)
+                // 20 Second Timeout
                 setTimeout(() => { 
                     if(!conn || !conn.open) {
                         handleConnectError(); 
                     }
-                }, 15000);
+                }, 20000); 
             });
 
             peer.on('error', (err) => {
@@ -336,6 +335,7 @@
             if(peer) peer.destroy();
             document.getElementById('join-btn').innerText = "JOIN LOBBY";
             document.getElementById('join-btn').disabled = false;
+            document.getElementById('connect-error').innerText = "TIMED OUT. TRY MOBILE HOTSPOT.";
             document.getElementById('connect-error').style.display = "block";
             document.getElementById('join-wait').classList.add('hidden');
             document.getElementById('multi-menu').classList.remove('hidden');
@@ -348,10 +348,7 @@
         }
 
         function hostStartGame() {
-            if(!conn || !conn.open) {
-                alert("Player 2 disconnected. Wait for them to rejoin.");
-                return;
-            }
+            if(!conn || !conn.open) return;
             let hostRole = game.role;
             let joinRole = (hostRole === 'GUARD') ? 'MONSTER' : 'GUARD';
             conn.send({ type: 'START', role: joinRole });
