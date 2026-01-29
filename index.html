@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FNAF 1: Jumpscare Update</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
+    <style>
+        /* ==================== STYLES ==================== */
+        body { background-color: #050505; margin: 0; overflow: hidden; font-family: 'Courier New', Courier, monospace; user-select: none; }
+        
+        /* FX LAYERS */
+        #fx-static {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 800;
+            opacity: 0.03; 
+            background-image: url('https://media.giphy.com/media/oEI9uBYSzLpBK/giphy.gif'); 
+            mix-blend-mode: screen;
+        }
+        #scanlines {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 801;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+        }
+        #nv-overlay {
+            display: none; position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index: 850;
+            background: rgba(0, 255, 0, 0.15); box-shadow: inset 0 0 100px #00ff00; mix-blend-mode: add;
+        }
+
+        /* UI CONTAINERS */
+        .screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; color: #fff; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 2000;
+        }
+        .hidden { display: none !important; }
+
+        /* BUTTONS */
+        h1 { font-size: 50px; text-shadow: 2px 2px red; margin-bottom: 10px; text-align: center; }
+        .btn {
+            padding: 15px 40px; border: 2px solid #fff; background: #111; color: #fff;
+            font-size: 20px; cursor: pointer; margin: 10px; width: 300px;
+            text-transform: uppercase; transition: 0.2s;
+        }
+        .btn:hover { background: #fff; color: #000; }
+        input { background: #222; border: 1px solid #555; color: white; padding: 10px; font-size: 18px; text-align: center; width: 280px; }
+
+        /* LOBBY */
+        #role-selector { display: flex; gap: 10px; margin: 20px; }
+        .role-btn { width: 140px; border: 1px solid #555; padding: 10px; cursor: pointer; text-align: center; }
+        .role-active { background: #0f0; color: black; font-weight: bold; border: 2px solid white; }
+
+        /* HUD */
+        #hud { display: none; width: 100%; height: 100%; position: absolute; top:0; left:0; pointer-events: none; }
+        #clock { position: absolute; top: 20px; right: 30px; font-size: 40px; font-weight: bold; text-shadow: 2px 2px 0 #000; color: white; }
+        #power-ui { position: absolute; bottom: 20px; left: 30px; font-size: 24px; color: white; text-shadow: 1px 1px 0 #000; }
+        .pwr-bar { display: inline-block; width: 20px; height: 10px; background: #333; margin-right: 2px; border: 1px solid #555; }
+        .pwr-on { background: lime; box-shadow: 0 0 5px lime; }
+
+        /* CONTROLS */
+        #controls-hint { position: absolute; top: 20px; left: 30px; color: #aaa; font-size: 14px; }
+        #flash-btn {
+            position: absolute; bottom: 100px; right: 30px; 
+            width: 80px; height: 80px; border-radius: 50%;
+            background: rgba(255,255,255,0.1); border: 2px solid #fff;
+            pointer-events: auto; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 10px; text-align: center; color: white;
+        }
+        #flash-btn:active { background: white; color: black; }
+
+        /* MAP/CAMS */
+        #monitor-trigger {
+            position: absolute; bottom: 0; left: 30%; width: 40%; height: 40px;
+            background: rgba(255,255,255,0.1); border: 1px solid white; border-bottom: none;
+            cursor: pointer; pointer-events: auto; display: flex; align-items: center; justify-content: center;
+            color: #aaa; transition: 0.2s;
+        }
+        #monitor-trigger:hover { background: rgba(255,255,255,0.3); color: white; }
+
+        #cam-ui { display: none; width: 100%; height: 100%; background: rgba(0,0,0,0.2); pointer-events: none; }
+        #map-box {
+            position: absolute; bottom: 70px; right: 40px; width: 300px; height: 250px;
+            background: rgba(0,0,0,0.85); border: 2px solid #555; pointer-events: auto;
+        }
+        .map-btn {
+            position: absolute; background: #333; border: 1px solid #666; color: #ccc;
+            font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .map-btn:hover { background: #555; color: white; }
+        .map-active { background: #adff2f; color: black; border-color: white; }
+        #cam-title { position: absolute; top: 40px; left: 50px; font-size: 30px; color: white; text-shadow: 2px 2px 0 black; }
+        
+        /* CONNECTION ERROR */
+        .error-text { color: red; font-weight: bold; margin-top: 10px; display: none; }
+
+        /* --- UPDATED SCARY STUFF --- */
+        #scare-screen { 
+            display: none; 
+            background: black; 
+            z-index: 5000; 
+            align-items: center; 
+            justify-content: center; 
+            overflow: hidden;
+        }
+        #scare-img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            /* Violent Shake Animation */
+            animation: violent-shake 0.15s infinite; 
+        }
+
+        @keyframes violent-shake {
+            0% { transform: translate(0, 0) scale(1.1); }
+            20% { transform: translate(-10px, 10px) scale(1.2); }
+            40% { transform: translate(10px, -10px) scale(1.1); }
+            60% { transform: translate(-10px, -10px) scale(1.2) rotate(2deg); }
+            80% { transform: translate(10px, 10px) scale(1.1) rotate(-2deg); }
+            100% { transform: translate(0, 0) scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="fx-static"></div>
+    <div id="scanlines"></div>
+    <div id="nv-overlay"></div>
+
+    <div id="menu" class="screen">
+        <h1>FIVE NIGHTS</h1>
+        <p style="color:#888;">MULTIPLAYER UPDATE: JUMPSCARE</p>
+        <button class="btn" onclick="startSolo()">SINGLE PLAYER</button>
+        <button class="btn" onclick="openMultiMenu()">MULTIPLAYER</button>
+        <p style="font-size:12px; color:#555; margin-top:20px;">[DEV TIP: PRESS 'J' IN GAME TO TEST JUMPSCARE]</p>
+    </div>
+
+    <div id="multi-menu" class="screen hidden">
+        <h1>MULTIPLAYER</h1>
+        <button class="btn" onclick="setupHost()">CREATE LOBBY</button>
+        <br>
+        <input type="text" id="join-code" placeholder="ENTER HOST ID">
+        <p id="connect-error" class="error-text">LOBBY NOT FOUND!</p>
+        <button class="btn" id="join-btn" onclick="joinLobby()">JOIN LOBBY</button>
+        <br>
+        <button class="btn" style="width:150px; font-size:16px; border-color:#555; color:#888;" onclick="location.reload()">BACK</button>
+    </div>
+
+    <div id="lobby-screen" class="screen hidden">
+        <h1>LOBBY</h1>
+        <p id="lobby-code" style="font-size:24px; color:lime; user-select: text;">GENERATING ID...</p>
+        <p id="lobby-status">Waiting for player...</p>
+        <div id="role-selector">
+            <div id="role-guard" class="role-btn role-active" onclick="selectRole('GUARD')">PLAY AS<br>GUARD</div>
+            <div id="role-anim" class="role-btn" onclick="selectRole('MONSTER')">PLAY AS<br>FREDDY</div>
+        </div>
+        <button id="start-match-btn" class="btn" onclick="hostStartGame()" style="display:none; border-color:lime; color:lime;">START NIGHT</button>
+    </div>
+
+    <div id="join-wait" class="screen hidden">
+        <h1>CONNECTING...</h1>
+        <p>Looking for server...</p>
+        <div class="pwr-bar pwr-on" style="animation: blink 1s infinite;"></div>
+    </div>
+
+    <div id="hud">
+        <div id="controls-hint">[W,A,S,D] Move | [MOUSE] Look | [F] Flash | [J] Test Scare</div>
+        <div id="clock">12 AM</div>
+        <div id="power-ui">
+            POWER: <span id="pwr-val">100</span>% <br>
+            USAGE: <span class="pwr-bar pwr-on"></span><span class="pwr-bar" id="u-2"></span><span class="pwr-bar" id="u-3"></span><span class="pwr-bar" id="u-4"></span>
+        </div>
+        <div id="flash-btn" onmousedown="toggleFlashlight()">FLASH</div>
+
+        <div id="cam-ui">
+            <div id="cam-border"></div>
+            <div id="cam-title">CAM 1A</div>
+            <div id="map-box">
+                <div id="m-1a" class="map-btn map-active" style="top:20px; left:130px; width:40px; height:30px;" onclick="setCam('1A')">1A</div>
+                <div id="m-1b" class="map-btn" style="top:60px; left:120px; width:60px; height:50px;" onclick="setCam('1B')">1B</div>
+                <div id="m-1c" class="map-btn" style="top:80px; left:80px; width:30px; height:30px;" onclick="setCam('1C')">1C</div>
+                <div id="m-2a" class="map-btn" style="top:130px; left:120px; width:20px; height:60px;" onclick="setCam('2A')">2A</div>
+                <div id="m-2b" class="map-btn" style="top:200px; left:120px; width:20px; height:20px;" onclick="setCam('2B')">2B</div>
+                <div id="m-4a" class="map-btn" style="top:130px; left:160px; width:20px; height:60px;" onclick="setCam('4A')">4A</div>
+                <div id="m-4b" class="map-btn" style="top:200px; left:160px; width:20px; height:20px;" onclick="setCam('4B')">4B</div>
+                <div id="m-6" class="map-btn" style="top:160px; left:190px; width:40px; height:40px;" onclick="setCam('6')">6</div>
+                <div style="position:absolute; bottom:5px; left:135px; color:#aaa; font-size:10px;">YOU</div>
+            </div>
+        </div>
+        <div id="monitor-trigger" onmousedown="toggleMonitor()"><span id="mon-txt">OPEN MONITOR</span></div>
+    </div>
+
+    <div id="scare-screen" class="screen">
+        <img id="scare-img" src="https://i.imgur.com/P3a8ikL.jpeg">
+        <h1 style="position:absolute; color:red; font-size:80px; text-shadow: 4px 4px 0 black; animation: blink 0.1s infinite;">GAME OVER</h1>
+    </div>
+
+    <a-scene loading-screen="enabled: false" background="color: #000" fog="type: exponential; color: #000; density: 0.15">
+        <a-assets>
+            <img id="wall-tex" src="https://i.imgur.com/v6S7QoJ.png"> 
+            <img id="floor-tex" src="checker.png">
+            <a-asset-item id="freddy-glb" src="freddy.glb"></a-asset-item>
+            <audio id="sfx-ambience" src="https://cdn.pixabay.com/download/audio/2022/10/14/audio_997996c56b.mp3" loop></audio>
+            <audio id="sfx-blip" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8b8433b5d.mp3"></audio>
+            <audio id="sfx-scare" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3"></audio>
+        </a-assets>
+
+        <a-entity id="map-root">
+            <a-entity position="0 0 15">
+                <a-plane rotation="-90 0 0" width="6" height="5" color="#333" src="#floor-tex" repeat="3 3"></a-plane>
+                <a-plane position="0 4 0" rotation="90 0 0" width="6" height="5" color="#111"></a-plane>
+                <a-box position="0 2 2.5" width="6" height="4" depth="0.2" color="#777" src="#wall-tex"></a-box>
+                <a-box position="0 2 -2.5" width="6" height="4" depth="0.2" color="#777" src="#wall-tex"></a-box>
+                <a-box position="-3 2 1.5" width="0.2" height="4" depth="2" color="#555"></a-box>
+                <a-box position="-3 2 -1.5" width="0.2" height="4" depth="2" color="#555"></a-box>
+                <a-box position="-3 3.5 0" width="0.2" height="1" depth="1" color="#555"></a-box>
+                <a-box position="3 2 1.5" width="0.2" height="4" depth="2" color="#555"></a-box>
+                <a-box position="3 2 -1.5" width="0.2" height="4" depth="2" color="#555"></a-box>
+                <a-box position="3 3.5 0" width="0.2" height="1" depth="1" color="#555"></a-box>
+                <a-box position="0 1.2 -1.5" width="3" height="0.1" depth="1.5" color="#222"></a-box>
+                
+                <a-cylinder position="1 1.5 -1.5" radius="0.2" height="0.4" color="black">
+                    <a-box position="0 0.3 0" width="0.8" height="0.1" depth="0.1" color="#555" animation="property: rotation; to: 0 360 0; loop: true; dur: 200; easing: linear"></a-box>
+                </a-cylinder>
+
+                <a-box position="-2.8 1.5 -0.8" width="0.1" height="0.2" depth="0.1" color="red" class="clickable" onclick="clickDoor('L')"></a-box>
+                <a-box position="-2.8 1.2 -0.8" width="0.1" height="0.2" depth="0.1" color="white" class="clickable" onclick="clickLight('L')"></a-box>
+                <a-box position="2.8 1.5 -0.8" width="0.1" height="0.2" depth="0.1" color="red" class="clickable" onclick="clickDoor('R')"></a-box>
+                <a-box position="2.8 1.2 -0.8" width="0.1" height="0.2" depth="0.1" color="white" class="clickable" onclick="clickLight('R')"></a-box>
+
+                <a-box id="door-L" position="-2.9 2 0" width="0.1" height="4" depth="1" color="#333" visible="false"></a-box>
+                <a-box id="door-R" position="2.9 2 0" width="0.1" height="4" depth="1" color="#333" visible="false"></a-box>
+                <a-light type="point" intensity="0.2" distance="5" color="#aaf" position="0 3 0"></a-light>
+            </a-entity>
+
+            <a-entity position="-4 0 7.5">
+                <a-plane rotation="-90 0 0" position="0 0 0" width="3" height="16" color="#333" src="#floor-tex" repeat="2 8"></a-plane>
+                <a-box position="-1.5 2 0" width="0.2" height="4" depth="16" color="#444" src="#wall-tex"></a-box>
+                <a-box position="1.5 2 0" width="0.2" height="4" depth="16" color="#444" src="#wall-tex"></a-box>
+                <a-plane position="0 0.1 6.5" width="2" height="2" color="black" opacity="0.5"></a-plane>
+            </a-entity>
+
+            <a-entity position="4 0 7.5">
+                <a-plane rotation="-90 0 0" position="0 0 0" width="3" height="16" color="#333" src="#floor-tex" repeat="2 8"></a-plane>
+                <a-box position="-1.5 2 0" width="0.2" height="4" depth="16" color="#444" src="#wall-tex"></a-box>
+                <a-box position="1.5 2 0" width="0.2" height="4" depth="16" color="#444" src="#wall-tex"></a-box>
+            </a-entity>
+
+            <a-entity position="0 0 -5">
+                <a-plane rotation="-90 0 0" width="20" height="12" color="#222" src="#floor-tex" repeat="10 6"></a-plane>
+                <a-box position="-10 2 0" width="0.2" height="4" depth="12" color="#555" src="#wall-tex"></a-box>
+                <a-box position="10 2 0" width="0.2" height="4" depth="12" color="#555" src="#wall-tex"></a-box>
+                <a-box position="0 2 6" width="20" height="4" depth="0.2" color="#555" src="#wall-tex"></a-box>
+                <a-cylinder position="-3 0.5 0" radius="1" height="1" color="white">
+                     <a-cone position="0 1 0" radius-bottom="0.2" height="0.5" color="red"></a-cone>
+                </a-cylinder>
+                <a-cylinder position="3 0.5 2" radius="1" height="1" color="white"></a-cylinder>
+                <a-cylinder position="0 0.5 -2" radius="1" height="1" color="white"></a-cylinder>
+            </a-entity>
+
+            <a-entity position="0 0 -13">
+                <a-box position="0 0.5 0" width="8" height="1" depth="4" color="#222"></a-box>
+                <a-box position="0 2 -2" width="10" height="4" depth="0.2" color="#444"></a-box>
+                <a-box position="-4 2 0" width="0.2" height="4" depth="4" color="#444"></a-box>
+                <a-box position="4 2 0" width="0.2" height="4" depth="4" color="#444"></a-box>
+            </a-entity>
+
+            <a-entity position="-8 0 -2">
+                <a-plane position="0 2 0" width="4" height="4" color="purple" material="side: double"></a-plane>
+                <a-box position="0 0.2 1" width="4" height="0.4" depth="0.2" color="black"></a-box>
+                <a-text value="SORRY! OUT OF ORDER" color="white" align="center" position="0 1.5 0.1" scale="0.8 0.8 0.8"></a-text>
+            </a-entity>
+
+            <a-entity position="12 0 -2">
+                <a-box position="0 2 0" width="4" height="4" depth="6" color="#111"></a-box>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="freddy" position="0 1.5 -12">
+            <a-gltf-model src="#freddy-glb"></a-gltf-model>
+            <a-entity id="freddy-block"><a-box color="#532" height="1.8" width="0.8" depth="0.5"></a-box></a-entity>
+        </a-entity>
+
+        <a-entity id="player-rig" position="0 1.6 15" rotation="0 180 0">
+            <a-camera id="head" look-controls="pointerLockEnabled: true" wasd-controls="enabled: false">
+                <a-cursor color="red" scale="0.5 0.5 0.5" raycaster="objects: .clickable"></a-cursor>
+                <a-light id="flashlight" type="spot" color="#fff" intensity="0" angle="30" penumbra="0.3" distance="30" position="0.2 -0.2 0"></a-light>
+            </a-camera>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        // CONFIG
+        const CAM_POS = {
+            '1A': '0 3 -8', '1B': '0 4 -2', '1C': '-6 2 -1',
+            '2A': '-4 3 6', '2B': '-4 2 13',
+            '4A': '4 3 6', '4B': '4 2 13', '6': '12 2 -2'
+        };
+        const ZONES = [
+            { x: [-2.5, 2.5], z: [13, 17] },
+            { x: [-5, -3], z: [0, 15] },
+            { x: [3, 5], z: [0, 15] },
+            { x: [-9, 9], z: [-10, 1] },
+            { x: [-4, 4], z: [-14, -10] }
+        ];
+
+        let game = {
+            active: false, mode: 'SOLO', role: 'GUARD',
+            power: 100, hour: 12, monitor: false, flashlight: false,
+            doors: {L:false, R:false}, lights: {L:false, R:false}, ai: { bonnie: 0 }
+        };
+
+        let peer = null, conn = null;
+        const PREFIX = "fnaf-1-remake-";
+
+        // --- COLLISION ---
+        AFRAME.registerComponent('collision-check', {
+            tick: function () {
+                if (!game.active) return;
+                const pos = this.el.object3D.position;
+                let allowed = false;
+                for(let z of ZONES) {
+                    if(pos.x >= z.x[0] && pos.x <= z.x[1] && pos.z >= z.z[0] && pos.z <= z.z[1]) {
+                        allowed = true; break;
+                    }
+                }
+                if (!allowed) {
+                    if(pos.z > 16.5) pos.z = 16.5;
+                    else if(pos.z < -13) pos.z = -13;
+                    else if(Math.abs(pos.x) > 8.5) pos.x = pos.x > 0 ? 8.5 : -8.5;
+                    else if(pos.z > 1 && pos.z < 13 && Math.abs(pos.x) < 3) pos.z = 0; 
+                }
+            }
+        });
+        document.getElementById('player-rig').setAttribute('collision-check', '');
+
+        // --- UPDATED CONTROLS: PRESS 'J' FOR JUMPSCARE ---
+        window.addEventListener('keydown', (e) => { 
+            if(e.code === 'KeyF') toggleFlashlight(); 
+            if(e.code === 'KeyJ') jumpscare(); // DEBUG KEY
+        });
+
+        function openMultiMenu() {
+            document.getElementById('menu').classList.add('hidden');
+            document.getElementById('multi-menu').classList.remove('hidden');
+            document.getElementById('connect-error').style.display = "none";
+        }
+
+        function setupHost() {
+            const id = Math.floor(Math.random() * 9000 + 1000);
+            if(peer) peer.destroy();
+            peer = new Peer(PREFIX + id);
+            document.getElementById('multi-menu').classList.add('hidden');
+            document.getElementById('lobby-screen').classList.remove('hidden');
+            document.getElementById('lobby-code').innerText = "ID: " + id;
+            peer.on('connection', (c) => {
+                conn = c;
+                document.getElementById('lobby-status').innerText = "PLAYER JOINED!";
+                document.getElementById('lobby-status').style.color = "lime";
+                document.getElementById('start-match-btn').style.display = "block";
+                setupNetEvents();
+            });
+        }
+
+        function joinLobby() {
+            const inputId = document.getElementById('join-code').value.trim();
+            if(!inputId) return;
+            document.getElementById('connect-error').style.display = "none";
+            document.getElementById('join-btn').innerText = "CONNECTING...";
+            if(peer) peer.destroy();
+            peer = new Peer(); 
+            peer.on('open', (myId) => {
+                const connId = PREFIX + inputId;
+                conn = peer.connect(connId);
+                conn.on('open', () => {
+                    document.getElementById('multi-menu').classList.add('hidden');
+                    document.getElementById('join-wait').classList.remove('hidden');
+                    setupNetEvents();
+                });
+                setTimeout(() => { if(!conn.open) handleConnectError(); }, 5000);
+            });
+            peer.on('error', (err) => {
+                if(err.type === 'peer-unavailable' || err.type === 'invalid-id') handleConnectError();
+            });
+        }
+
+        function handleConnectError() {
+            if(peer) peer.destroy();
+            document.getElementById('join-btn').innerText = "JOIN LOBBY";
+            document.getElementById('connect-error').style.display = "block";
+            document.getElementById('connect-error').innerText = "LOBBY NOT FOUND!";
+            document.getElementById('join-wait').classList.add('hidden');
+            document.getElementById('multi-menu').classList.remove('hidden');
+        }
+
+        function selectRole(r) {
+            game.role = r;
+            document.getElementById('role-guard').className = r==='GUARD' ? 'role-btn role-active' : 'role-btn';
+            document.getElementById('role-anim').className = r==='MONSTER' ? 'role-btn role-active' : 'role-btn';
+        }
+
+        function hostStartGame() {
+            let hostRole = game.role;
+            let joinRole = (hostRole === 'GUARD') ? 'MONSTER' : 'GUARD';
+            conn.send({ type: 'START', role: joinRole });
+            launchGame(hostRole);
+        }
+
+        function setupNetEvents() {
+            conn.on('data', (data) => {
+                if(data.type === 'START') launchGame(data.role);
+                if(data.type === 'SYNC') { game.doors = data.doors; game.lights = data.lights; updateWorldVisuals(); }
+                if(data.type === 'MOVE') {
+                    const fred = document.getElementById('freddy');
+                    fred.setAttribute('position', data.pos);
+                    fred.setAttribute('visible', true);
+                    if(data.z > 14 && game.role === 'GUARD') {
+                        if(!game.doors.L && !game.doors.R) jumpscare();
+                    }
+                }
+                if(data.type === 'SCARE') jumpscare();
+            });
+        }
+
+        function startSolo() {
+            game.mode = 'SOLO';
+            game.role = 'GUARD';
+            launchGame('GUARD');
+            setInterval(aiLoop, 4000); 
+        }
+
+        function launchGame(role) {
+            game.role = role;
+            game.active = true;
+            document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
+            document.getElementById('sfx-ambience').play().catch(()=>{});
+
+            if(role === 'GUARD') {
+                document.getElementById('hud').style.display = 'block';
+                document.getElementById('freddy').setAttribute('visible', true);
+                setInterval(clockTick, 8000);
+                setInterval(powerTick, 1000);
+            } else {
+                document.getElementById('hud').style.display = 'none';
+                document.getElementById('nv-overlay').style.display = 'block';
+                document.getElementById('freddy').setAttribute('visible', false);
+                const rig = document.getElementById('player-rig');
+                rig.setAttribute('wasd-controls', 'enabled: true; acceleration: 20'); 
+                rig.setAttribute('position', '0 1.6 -12');
+                const nvLight = document.createElement('a-entity');
+                nvLight.setAttribute('light', 'type: spot; color: #88ff88; intensity: 1.5; angle: 80; distance: 40; penumbra: 0.5');
+                rig.querySelector('#head').appendChild(nvLight);
+                document.querySelector('a-scene').setAttribute('fog', 'density: 0');
+                setInterval(() => {
+                    if(!game.active) return;
+                    const pos = rig.getAttribute('position');
+                    conn.send({ type: 'MOVE', pos: pos, z: pos.z });
+                }, 100);
+            }
+        }
+
+        function clockTick() {
+            if(!game.active) return;
+            game.hour++;
+            if(game.hour === 13) game.hour = 1;
+            document.getElementById('clock').innerText = game.hour + (game.hour===12?" AM":" AM");
+            if(game.hour === 6) { game.active=false; alert("6 AM - SURVIVED"); location.reload(); }
+        }
+
+        function powerTick() {
+            if(!game.active) return;
+            let usage = 1;
+            if(game.doors.L) usage++; if(game.doors.R) usage++;
+            if(game.lights.L) usage++; if(game.lights.R) usage++;
+            if(game.monitor) usage++;
+            if(game.flashlight) usage++;
+            for(let i=2; i<=4; i++) document.getElementById('u-'+i).className = "pwr-bar "+(i<=usage?"pwr-on":"");
+            game.power -= (usage * 0.2);
+            if(game.power <= 0) { game.power = 0; powerOutage(); }
+            document.getElementById('pwr-val').innerText = Math.floor(game.power);
+        }
+
+        function toggleFlashlight() {
+            if(game.power <= 0 || game.role !== 'GUARD') return;
+            game.flashlight = !game.flashlight;
+            const intensity = game.flashlight ? 2.5 : 0;
+            document.getElementById('flashlight').setAttribute('intensity', intensity);
+            document.getElementById('sfx-blip').play();
+            document.getElementById('flash-btn').style.background = game.flashlight ? "white" : "rgba(255,255,255,0.1)";
+            document.getElementById('flash-btn').style.color = game.flashlight ? "black" : "white";
+        }
+
+        function clickDoor(side) {
+            if(game.power <= 0 || game.role !== 'GUARD') return;
+            game.doors[side] = !game.doors[side];
+            updateWorldVisuals();
+            syncNet();
+        }
+
+        function clickLight(side) {
+            if(game.power <= 0 || game.role !== 'GUARD') return;
+            game.lights[side] = !game.lights[side];
+            if(side==='L' && game.lights.L) game.lights.R = false;
+            if(side==='R' && game.lights.R) game.lights.L = false;
+            updateWorldVisuals();
+            syncNet();
+        }
+
+        function updateWorldVisuals() {
+            document.getElementById('door-L').setAttribute('visible', game.doors.L);
+            document.getElementById('door-R').setAttribute('visible', game.doors.R);
+            if(game.lights.L || game.lights.R) document.getElementById('sfx-blip').play();
+        }
+
+        function syncNet() {
+            if(game.mode === 'MULTI' && conn) conn.send({ type: 'SYNC', doors: game.doors, lights: game.lights });
+        }
+
+        function toggleMonitor() {
+            if(game.power <= 0) return;
+            game.monitor = !game.monitor;
+            const ui = document.getElementById('cam-ui');
+            const rig = document.getElementById('player-rig');
+            if(game.monitor) {
+                if(game.flashlight) toggleFlashlight(); 
+                ui.style.display = 'block';
+                document.getElementById('mon-txt').innerText = "CLOSE MONITOR";
+                setCam('1A');
+                document.getElementById('sfx-blip').play();
+            } else {
+                ui.style.display = 'none';
+                document.getElementById('mon-txt').innerText = "OPEN MONITOR";
+                rig.setAttribute('position', '0 1.6 15');
+                rig.setAttribute('rotation', '0 180 0');
+                document.querySelector('a-scene').setAttribute('fog', 'density: 0.15');
+            }
+        }
+
+        function setCam(id) {
+            document.querySelectorAll('.map-btn').forEach(b=>b.classList.remove('map-active'));
+            document.getElementById('m-'+id.toLowerCase()).classList.add('map-active');
+            document.getElementById('cam-title').innerText = "CAM " + id;
+            const rig = document.getElementById('player-rig');
+            const parts = CAM_POS[id].split(' ');
+            rig.setAttribute('position', `${parts[0]} ${parts[1]} ${parts[2]}`);
+            if(id === '6') document.querySelector('a-scene').setAttribute('fog', 'density: 1.0');
+            else document.querySelector('a-scene').setAttribute('fog', 'density: 0.15');
+            const fx = document.getElementById('fx-static');
+            fx.style.opacity = 0.3; setTimeout(()=>fx.style.opacity=0.03, 150);
+            document.getElementById('sfx-blip').play();
+        }
+
+        function aiLoop() {
+            if(game.mode === 'MULTI') return;
+            if(Math.random() > 0.4) {
+                game.ai.bonnie++;
+                moveAI('bonnie', game.ai.bonnie, [[-2,1.5,-5], [-4,0,5], [-4,0,12], [-3,0,14]]);
+                if(game.ai.bonnie === 4) {
+                    if(!game.doors.L) setTimeout(jumpscare, 3000);
+                    else game.ai.bonnie = 1;
+                }
+            }
+        }
+
+        function moveAI(name, stage, path) {
+            const el = document.getElementById('freddy');
+            if(stage <= path.length) {
+                const p = path[stage-1];
+                el.setAttribute('position', `${p[0]} ${p[1]} ${p[2]}`);
+            }
+        }
+
+        // --- UPDATED JUMPSCARE FUNCTION ---
+        function jumpscare() {
+            if(!game.active) return; // Don't scare twice
+            game.active = false;
+            
+            // 1. Hide Game HUD
+            document.getElementById('hud').style.display='none';
+            document.getElementById('cam-ui').style.display='none';
+            
+            // 2. Show Scare Screen
+            document.getElementById('scare-screen').style.display='flex';
+            
+            // 3. Play Scream
+            const audio = document.getElementById('sfx-scare');
+            audio.currentTime = 0;
+            audio.play();
+
+            // 4. Reload after 3 seconds
+            setTimeout(()=>location.reload(), 3000);
+        }
+
+        function powerOutage() {
+            if(game.monitor) toggleMonitor();
+            if(game.flashlight) toggleFlashlight();
+            document.getElementById('power-ui').style.color = 'red';
+            setTimeout(jumpscare, 5000);
+        }
+    </script>
+</body>
+</html>
