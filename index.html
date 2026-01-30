@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>FNAF: Final Fixed Version</title>
+    <title>FNAF: Immersive View Update</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
@@ -48,8 +48,12 @@
         .role-btn { width: 140px; border: 1px solid #555; padding: 10px; cursor: pointer; text-align: center; }
         .role-active { background: #0f0; color: black; font-weight: bold; border: 2px solid white; }
 
-        /* HUD */
+        /* HUD - Updated for Fading */
         #hud { display: none; width: 100%; height: 100%; position: absolute; top:0; left:0; pointer-events: none; }
+        
+        .hud-element { transition: opacity 0.5s ease; opacity: 1; }
+        .hud-hidden { opacity: 0 !important; pointer-events: none; }
+
         #clock { position: absolute; top: 20px; right: 30px; font-size: 40px; font-weight: bold; text-shadow: 2px 2px 0 #000; color: white; }
         #power-ui { position: absolute; bottom: 20px; left: 30px; font-size: 24px; color: white; text-shadow: 1px 1px 0 #000; }
         .pwr-bar { display: inline-block; width: 20px; height: 10px; background: #333; margin-right: 2px; border: 1px solid #555; }
@@ -107,7 +111,7 @@
 
     <div id="menu" class="screen">
         <h1>FIVE NIGHTS</h1>
-        <p style="color:#888;">FINAL UPDATE</p>
+        <p style="color:#888;">IMMERSIVE UPDATE</p>
         <button class="btn" onclick="startSolo()">SINGLE PLAYER</button>
         <button class="btn" onclick="openMultiMenu()">MULTIPLAYER</button>
     </div>
@@ -144,13 +148,13 @@
     </div>
 
     <div id="hud">
-        <div id="conn-status"><span class="status-dot"></span><span id="conn-text">OFFLINE</span></div>
-        <div id="clock">12 AM</div>
-        <div id="power-ui">
+        <div id="conn-status" class="hud-element"><span class="status-dot"></span><span id="conn-text">OFFLINE</span></div>
+        <div id="clock" class="hud-element">12 AM</div>
+        <div id="power-ui" class="hud-element">
             POWER: <span id="pwr-val">100</span>% <br>
             USAGE: <span class="pwr-bar pwr-on"></span><span class="pwr-bar" id="u-2"></span><span class="pwr-bar" id="u-3"></span><span class="pwr-bar" id="u-4"></span>
         </div>
-        <div id="flash-btn" onmousedown="toggleFlashlight()">FLASH</div>
+        <div id="flash-btn" class="hud-element" onmousedown="toggleFlashlight()">FLASH</div>
 
         <div id="cam-ui">
             <div id="cam-border"></div>
@@ -165,7 +169,7 @@
                 <div style="position:absolute; bottom:5px; left:135px; color:#aaa; font-size:10px;">YOU</div>
             </div>
         </div>
-        <div id="monitor-trigger" onmousedown="toggleMonitor()"><span id="mon-txt">OPEN MONITOR</span></div>
+        <div id="monitor-trigger" class="hud-element" onmousedown="toggleMonitor()"><span id="mon-txt">OPEN MONITOR (SPACE)</span></div>
     </div>
 
     <div id="scare-screen" class="screen">
@@ -187,9 +191,7 @@
             <a-entity position="0 0 15">
                 <a-plane rotation="-90 0 0" width="8" height="6" color="#333" src="#floor-tex" repeat="4 4"></a-plane>
                 <a-plane position="0 4 0" rotation="90 0 0" width="8" height="6" color="#111"></a-plane>
-                
                 <a-box position="0 2 2.9" width="8" height="4" depth="0.2" color="#777" src="#wall-tex"></a-box>
-                
                 <a-box position="0 1 -2.9" width="8" height="2" depth="0.2" color="#777" src="#wall-tex"></a-box>
                 <a-box position="0 3.5 -2.9" width="8" height="1" depth="0.2" color="#777" src="#wall-tex"></a-box>
                 <a-box position="-3 2.5 -2.9" width="2" height="1" depth="0.2" color="#777" src="#wall-tex"></a-box>
@@ -197,14 +199,20 @@
 
                 <a-box position="-3.9 2 -2" width="0.2" height="4" depth="2" color="#666" src="#wall-tex"></a-box>
                 <a-box position="-3.9 2 2" width="0.2" height="4" depth="2" color="#666" src="#wall-tex"></a-box>
-                <a-box position="-3.9 3.5 0" width="0.2" height="1" depth="2" color="#666" src="#wall-tex"></a-box> <a-box position="3.9 2 -2" width="0.2" height="4" depth="2" color="#666" src="#wall-tex"></a-box>
+                <a-box position="-3.9 3.5 0" width="0.2" height="1" depth="2" color="#666" src="#wall-tex"></a-box> 
+                <a-box position="3.9 2 -2" width="0.2" height="4" depth="2" color="#666" src="#wall-tex"></a-box>
                 <a-box position="3.9 2 2" width="0.2" height="4" depth="2" color="#666" src="#wall-tex"></a-box>
-                <a-box position="3.9 3.5 0" width="0.2" height="1" depth="2" color="#666" src="#wall-tex"></a-box> <a-entity position="0 1.2 -1.5" scale="0.5 0.5 0.5">
-                     <a-cylinder color="#222" height="0.2" radius="0.3"></a-cylinder> <a-cylinder color="#444" height="0.6" radius="0.05" position="0 0.3 0"></a-cylinder> <a-entity position="0 0.6 0.1" animation="property: rotation; to: 0 0 -360; loop: true; dur: 200; easing: linear">
+                <a-box position="3.9 3.5 0" width="0.2" height="1" depth="2" color="#666" src="#wall-tex"></a-box>
+
+                <a-entity position="0 1.2 -1.5" scale="0.5 0.5 0.5">
+                     <a-cylinder color="#222" height="0.2" radius="0.3"></a-cylinder>
+                     <a-cylinder color="#444" height="0.6" radius="0.05" position="0 0.3 0"></a-cylinder>
+                     <a-entity position="0 0.6 0.1" animation="property: rotation; to: 0 0 -360; loop: true; dur: 200; easing: linear">
                         <a-box color="#111" width="1" height="0.1" depth="0.02"></a-box>
                         <a-box color="#111" width="1" height="0.1" depth="0.02" rotation="0 0 90"></a-box>
                      </a-entity>
-                     <a-cylinder color="#333" radius="0.6" height="0.1" rotation="90 0 0" position="0 0.6 0.1" material="opacity: 0.3; transparent: true; side: double"></a-cylinder> </a-entity>
+                     <a-cylinder color="#333" radius="0.6" height="0.1" rotation="90 0 0" position="0 0.6 0.1" material="opacity: 0.3; transparent: true; side: double"></a-cylinder>
+                </a-entity>
                 
                 <a-box position="0 1 -1.8" width="4" height="0.1" depth="1.5" color="#222"></a-box>
 
@@ -227,7 +235,6 @@
                 <a-plane rotation="-90 0 0" width="4" height="20" color="#222" src="#floor-tex"></a-plane>
                 <a-box position="2.1 2 0" width="0.2" height="4" depth="20" color="#444" src="#wall-tex"></a-box>
             </a-entity>
-
             <a-entity position="0 0 0"> <a-plane rotation="-90 0 0" width="20" height="20" color="#222" src="#floor-tex" repeat="10 10"></a-plane> </a-entity>
         </a-entity>
 
@@ -245,17 +252,7 @@
     </a-scene>
 
     <script>
-        // --- CONFIG ---
-        const CAM_POS = {
-            '1A': '0 3 0',   // Stage
-            '1B': '0 3 8',   // Dining
-            '4A': '7 3 15',  // Right Hall
-            '4B': '7 3 18',  // Right Corner
-            '2A': '-7 3 15', // Left Hall
-            '2B': '-7 3 18'  // Left Corner
-        };
-
-        // Solo AI Path
+        const CAM_POS = { '1A': '0 3 0', '1B': '0 3 8', '4A': '7 3 15', '4B': '7 3 18', '2A': '-7 3 15', '2B': '-7 3 18' };
         const AI_PATH = ['1A', '1B', '4A', '4B', 'OFFICE'];
         let freddyIndex = 0;
 
@@ -266,18 +263,27 @@
         };
 
         let peer = null, conn = null;
-        const PREFIX = "fnaf-final-fix-v4-"; 
-        
-        const PEER_CONFIG = {
-            config: { iceServers: [ { urls: 'stun:stun.l.google.com:19302' } ] }
-        };
+        const PREFIX = "fnaf-final-fix-v5-"; 
+        const PEER_CONFIG = { config: { iceServers: [ { urls: 'stun:stun.l.google.com:19302' } ] } };
 
         // --- CONTROLS ---
         window.addEventListener('keydown', (e) => { 
             if(e.code === 'KeyF') toggleFlashlight(); 
+            if(e.code === 'Space') toggleMonitor(); // Spacebar added
         });
 
-        // --- MENU & INIT ---
+        // --- HUD HIDE LOGIC ---
+        document.addEventListener('pointerlockchange', () => {
+            if(!game.active || game.role !== 'GUARD') return;
+            const isLocked = document.pointerLockElement !== null;
+            const uiEls = document.querySelectorAll('.hud-element');
+            // If mouse locked (looking around), hide UI. If unlocked, show UI.
+            uiEls.forEach(el => {
+                if(isLocked) el.classList.add('hud-hidden');
+                else el.classList.remove('hud-hidden');
+            });
+        });
+
         function openMultiMenu() {
             document.getElementById('menu').classList.add('hidden');
             document.getElementById('multi-menu').classList.remove('hidden');
@@ -286,36 +292,25 @@
         function startSolo() {
             game.mode = 'SOLO';
             launchGame('GUARD');
-            // AI Loop for Solo Mode
             setInterval(() => {
                 if(!game.active) return;
-                // Random chance to move every 5 seconds
-                if(Math.random() > 0.4) {
-                    moveFreddySolo();
-                }
+                if(Math.random() > 0.4) moveFreddySolo();
             }, 5000);
         }
 
         function moveFreddySolo() {
             freddyIndex++;
             if(freddyIndex >= AI_PATH.length) {
-                // He is at the office
-                if(!game.doors.R) { // Coming from Right Hall
-                    jumpscare();
-                } else {
-                    // Blocked
-                    freddyIndex = 0; // Reset
-                    document.getElementById('freddy').setAttribute('position', '0 1.5 0'); // Back to stage
+                if(!game.doors.R) jumpscare();
+                else {
+                    freddyIndex = 0; 
+                    document.getElementById('freddy').setAttribute('position', '0 1.5 0'); 
                 }
                 return;
             }
-            
-            // Move Visual
             let loc = AI_PATH[freddyIndex];
-            if(loc === 'OFFICE') return; // Wait for next tick to attack
-            
+            if(loc === 'OFFICE') return; 
             let coords = CAM_POS[loc].split(' ');
-            // Adjust Y for model
             document.getElementById('freddy').setAttribute('position', `${coords[0]} 1.5 ${coords[2]}`);
         }
 
@@ -359,7 +354,6 @@
             document.getElementById('conn-status').style.borderColor = 'lime';
             document.getElementById('conn-text').innerText = "CONNECTED";
             document.getElementById('conn-text').style.color = "lime";
-            
             conn.on('data', (data) => {
                 if(data.type === 'START') launchGame(data.role);
                 if(data.type === 'SYNC') { game.doors = data.doors; game.lights = data.lights; updateWorldVisuals(); }
@@ -367,9 +361,7 @@
                     const fred = document.getElementById('freddy');
                     fred.setAttribute('position', data.pos);
                     fred.setAttribute('visible', true);
-                    // Multiplayer Kill Logic
                     if(data.z > 14 && game.role === 'GUARD') {
-                        // Check if he is Left or Right (simple check based on x)
                         let isRight = data.x > 0;
                         if(isRight && !game.doors.R) jumpscare();
                         else if(!isRight && !game.doors.L) jumpscare();
@@ -410,14 +402,11 @@
                 document.getElementById('freddy').setAttribute('visible', false);
                 const rig = document.getElementById('player-rig');
                 rig.setAttribute('wasd-controls', 'enabled: true; acceleration: 25'); 
-                rig.setAttribute('position', '0 1.6 0'); // Start on stage
-                
-                // Add Night Vision Light
+                rig.setAttribute('position', '0 1.6 0'); 
                 const nvLight = document.createElement('a-entity');
                 nvLight.setAttribute('light', 'type: spot; color: #88ff88; intensity: 2; angle: 80; distance: 40;');
                 rig.querySelector('#head').appendChild(nvLight);
                 document.querySelector('a-scene').setAttribute('fog', 'density: 0');
-
                 setInterval(() => {
                     if(!game.active) return;
                     const pos = rig.getAttribute('position');
@@ -464,14 +453,10 @@
         }
 
         function updateWorldVisuals() {
-            // SLIDING DOORS
             const dL = document.getElementById('door-L');
             const dR = document.getElementById('door-R');
-            
-            // If door is closed, move it down (y=2). If open, move it up (y=5).
             dL.setAttribute('position', `-3.9 ${game.doors.L ? 2 : 5} 0`);
             dR.setAttribute('position', `3.9 ${game.doors.R ? 2 : 5} 0`);
-            
             if(game.lights.L || game.lights.R) document.getElementById('sfx-blip').play();
         }
 
@@ -492,13 +477,14 @@
             if(game.monitor) {
                 if(game.flashlight) toggleFlashlight(); 
                 ui.style.display = 'block';
-                document.getElementById('mon-txt').innerText = "CLOSE MONITOR";
+                document.getElementById('mon-txt').innerText = "CLOSE MONITOR (SPACE)";
+                // Force HUD elements visible when monitor is open
+                document.querySelectorAll('.hud-element').forEach(el => el.classList.remove('hud-hidden'));
                 setCam('1A');
                 document.getElementById('sfx-blip').play();
             } else {
                 ui.style.display = 'none';
-                document.getElementById('mon-txt').innerText = "OPEN MONITOR";
-                // Return to Office
+                document.getElementById('mon-txt').innerText = "OPEN MONITOR (SPACE)";
                 rig.setAttribute('position', '0 1.6 15');
                 rig.setAttribute('rotation', '0 180 0');
                 document.querySelector('a-scene').setAttribute('fog', 'density: 0.15');
@@ -509,15 +495,11 @@
             document.querySelectorAll('.map-btn').forEach(b=>b.classList.remove('map-active'));
             document.getElementById('m-'+id.toLowerCase()).classList.add('map-active');
             document.getElementById('cam-title').innerText = "CAM " + id;
-            
             const rig = document.getElementById('player-rig');
             const parts = CAM_POS[id].split(' ');
             rig.setAttribute('position', `${parts[0]} ${parts[1]} ${parts[2]}`);
-            rig.setAttribute('rotation', '0 0 0'); // Look forward
-            
+            rig.setAttribute('rotation', '0 0 0'); 
             document.querySelector('a-scene').setAttribute('fog', 'density: 0.15');
-            
-            // Static FX
             const fx = document.getElementById('fx-static');
             fx.style.opacity = 0.3; setTimeout(()=>fx.style.opacity=0.03, 150);
             document.getElementById('sfx-blip').play();
