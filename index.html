@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>FNAF Multiplayer: Firewall Fix</title>
+    <title>FNAF: Final Fixed Version</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
@@ -55,10 +55,7 @@
         .pwr-bar { display: inline-block; width: 20px; height: 10px; background: #333; margin-right: 2px; border: 1px solid #555; }
         .pwr-on { background: lime; box-shadow: 0 0 5px lime; }
         
-        /* CONNECTION STATUS */
-        #conn-status {
-            position: absolute; top: 20px; left: 20px; color: #555; font-size: 12px; border: 1px solid #333; padding: 5px;
-        }
+        #conn-status { position: absolute; top: 20px; left: 20px; color: #555; font-size: 12px; border: 1px solid #333; padding: 5px; }
         .status-dot { display: inline-block; width: 10px; height: 10px; background: red; border-radius: 50%; margin-right: 5px; }
 
         /* INTERACTIVE */
@@ -110,7 +107,7 @@
 
     <div id="menu" class="screen">
         <h1>FIVE NIGHTS</h1>
-        <p style="color:#888;">NETWORK FIX UPDATE</p>
+        <p style="color:#888;">FINAL UPDATE</p>
         <button class="btn" onclick="startSolo()">SINGLE PLAYER</button>
         <button class="btn" onclick="openMultiMenu()">MULTIPLAYER</button>
     </div>
@@ -118,7 +115,7 @@
     <div id="multi-menu" class="screen hidden">
         <h1>MULTIPLAYER</h1>
         <p style="font-size:14px; color:#aaa; max-width:400px; text-align:center;">
-            TO PLAY ON TWO COMPUTERS:<br>Host this game on Replit or use Live Server.<br>Do not just open the file.
+            Host on Replit or GitHub. Do not just open the file.
         </p>
         <button class="btn" onclick="setupHost()">CREATE LOBBY</button>
         <br>
@@ -161,12 +158,10 @@
             <div id="map-box">
                 <div id="m-1a" class="map-btn map-active" style="top:20px; left:130px; width:40px; height:30px;" onclick="setCam('1A')">1A</div>
                 <div id="m-1b" class="map-btn" style="top:60px; left:120px; width:60px; height:50px;" onclick="setCam('1B')">1B</div>
-                <div id="m-1c" class="map-btn" style="top:80px; left:80px; width:30px; height:30px;" onclick="setCam('1C')">1C</div>
-                <div id="m-2a" class="map-btn" style="top:130px; left:120px; width:20px; height:60px;" onclick="setCam('2A')">2A</div>
-                <div id="m-2b" class="map-btn" style="top:200px; left:120px; width:20px; height:20px;" onclick="setCam('2B')">2B</div>
                 <div id="m-4a" class="map-btn" style="top:130px; left:160px; width:20px; height:60px;" onclick="setCam('4A')">4A</div>
                 <div id="m-4b" class="map-btn" style="top:200px; left:160px; width:20px; height:20px;" onclick="setCam('4B')">4B</div>
-                <div id="m-6" class="map-btn" style="top:160px; left:190px; width:40px; height:40px;" onclick="setCam('6')">6</div>
+                <div id="m-2a" class="map-btn" style="top:130px; left:100px; width:20px; height:60px;" onclick="setCam('2A')">2A</div>
+                <div id="m-2b" class="map-btn" style="top:200px; left:100px; width:20px; height:20px;" onclick="setCam('2B')">2B</div>
                 <div style="position:absolute; bottom:5px; left:135px; color:#aaa; font-size:10px;">YOU</div>
             </div>
         </div>
@@ -190,32 +185,55 @@
 
         <a-entity id="map-root">
             <a-entity position="0 0 15">
-                <a-plane rotation="-90 0 0" width="6" height="5" color="#333" src="#floor-tex" repeat="3 3"></a-plane>
-                <a-plane position="0 4 0" rotation="90 0 0" width="6" height="5" color="#111"></a-plane>
-                <a-box position="0 2 2.5" width="6" height="4" depth="0.2" color="#777" src="#wall-tex"></a-box>
-                <a-box position="0 2 -2.5" width="6" height="4" depth="0.2" color="#777" src="#wall-tex"></a-box>
-                <a-box position="-3 2 0" width="0.2" height="4" depth="5" color="#555"></a-box>
-                <a-box position="3 2 0" width="0.2" height="4" depth="5" color="#555"></a-box>
-                <a-box position="0 1.2 -1.5" width="3" height="0.1" depth="1.5" color="#222"></a-box>
+                <a-plane rotation="-90 0 0" width="8" height="6" color="#333" src="#floor-tex" repeat="4 4"></a-plane>
+                <a-plane position="0 4 0" rotation="90 0 0" width="8" height="6" color="#111"></a-plane>
                 
-                <a-box position="-2.8 1.5 -0.8" width="0.1" height="0.2" depth="0.1" color="red" class="clickable" onclick="clickDoor('L')"></a-box>
-                <a-box position="-2.8 1.2 -0.8" width="0.1" height="0.2" depth="0.1" color="white" class="clickable" onclick="clickLight('L')"></a-box>
-                <a-box position="2.8 1.5 -0.8" width="0.1" height="0.2" depth="0.1" color="red" class="clickable" onclick="clickDoor('R')"></a-box>
-                <a-box position="2.8 1.2 -0.8" width="0.1" height="0.2" depth="0.1" color="white" class="clickable" onclick="clickLight('R')"></a-box>
+                <a-box position="0 2 2.9" width="8" height="4" depth="0.2" color="#777" src="#wall-tex"></a-box>
+                
+                <a-box position="0 1 -2.9" width="8" height="2" depth="0.2" color="#777" src="#wall-tex"></a-box>
+                <a-box position="0 3.5 -2.9" width="8" height="1" depth="0.2" color="#777" src="#wall-tex"></a-box>
+                <a-box position="-3 2.5 -2.9" width="2" height="1" depth="0.2" color="#777" src="#wall-tex"></a-box>
+                <a-box position="3 2.5 -2.9" width="2" height="1" depth="0.2" color="#777" src="#wall-tex"></a-box>
 
-                <a-box id="door-L" position="-2.9 2 0" width="0.1" height="4" depth="1" color="#333" visible="false"></a-box>
-                <a-box id="door-R" position="2.9 2 0" width="0.1" height="4" depth="1" color="#333" visible="false"></a-box>
+                <a-box position="-3.9 2 -2" width="0.2" height="4" depth="2" color="#666" src="#wall-tex"></a-box>
+                <a-box position="-3.9 2 2" width="0.2" height="4" depth="2" color="#666" src="#wall-tex"></a-box>
+                <a-box position="-3.9 3.5 0" width="0.2" height="1" depth="2" color="#666" src="#wall-tex"></a-box> <a-box position="3.9 2 -2" width="0.2" height="4" depth="2" color="#666" src="#wall-tex"></a-box>
+                <a-box position="3.9 2 2" width="0.2" height="4" depth="2" color="#666" src="#wall-tex"></a-box>
+                <a-box position="3.9 3.5 0" width="0.2" height="1" depth="2" color="#666" src="#wall-tex"></a-box> <a-entity position="0 1.2 -1.5" scale="0.5 0.5 0.5">
+                     <a-cylinder color="#222" height="0.2" radius="0.3"></a-cylinder> <a-cylinder color="#444" height="0.6" radius="0.05" position="0 0.3 0"></a-cylinder> <a-entity position="0 0.6 0.1" animation="property: rotation; to: 0 0 -360; loop: true; dur: 200; easing: linear">
+                        <a-box color="#111" width="1" height="0.1" depth="0.02"></a-box>
+                        <a-box color="#111" width="1" height="0.1" depth="0.02" rotation="0 0 90"></a-box>
+                     </a-entity>
+                     <a-cylinder color="#333" radius="0.6" height="0.1" rotation="90 0 0" position="0 0.6 0.1" material="opacity: 0.3; transparent: true; side: double"></a-cylinder> </a-entity>
+                
+                <a-box position="0 1 -1.8" width="4" height="0.1" depth="1.5" color="#222"></a-box>
+
+                <a-box position="-3.7 1.5 -0.8" width="0.1" height="0.2" depth="0.1" color="red" class="clickable" onclick="clickDoor('L')"></a-box>
+                <a-box position="-3.7 1.2 -0.8" width="0.1" height="0.2" depth="0.1" color="white" class="clickable" onclick="clickLight('L')"></a-box>
+                <a-box position="3.7 1.5 -0.8" width="0.1" height="0.2" depth="0.1" color="red" class="clickable" onclick="clickDoor('R')"></a-box>
+                <a-box position="3.7 1.2 -0.8" width="0.1" height="0.2" depth="0.1" color="white" class="clickable" onclick="clickLight('R')"></a-box>
+
+                <a-box id="door-L" position="-3.9 5 0" width="0.1" height="4" depth="1.8" color="#333"></a-box>
+                <a-box id="door-R" position="3.9 5 0" width="0.1" height="4" depth="1.8" color="#333"></a-box>
+                
                 <a-light type="point" intensity="0.2" distance="5" color="#aaf" position="0 3 0"></a-light>
             </a-entity>
 
-            <a-entity position="-4 0 7.5"> <a-plane rotation="-90 0 0" width="3" height="16" color="#333" src="#floor-tex" repeat="2 8"></a-plane> </a-entity>
-            <a-entity position="4 0 7.5"> <a-plane rotation="-90 0 0" width="3" height="16" color="#333" src="#floor-tex" repeat="2 8"></a-plane> </a-entity>
-            <a-entity position="0 0 -5"> <a-plane rotation="-90 0 0" width="20" height="12" color="#222" src="#floor-tex" repeat="10 6"></a-plane> </a-entity>
+            <a-entity position="-7 0 15"> 
+                <a-plane rotation="-90 0 0" width="4" height="20" color="#222" src="#floor-tex"></a-plane>
+                <a-box position="-2.1 2 0" width="0.2" height="4" depth="20" color="#444" src="#wall-tex"></a-box>
+            </a-entity>
+            <a-entity position="7 0 15"> 
+                <a-plane rotation="-90 0 0" width="4" height="20" color="#222" src="#floor-tex"></a-plane>
+                <a-box position="2.1 2 0" width="0.2" height="4" depth="20" color="#444" src="#wall-tex"></a-box>
+            </a-entity>
+
+            <a-entity position="0 0 0"> <a-plane rotation="-90 0 0" width="20" height="20" color="#222" src="#floor-tex" repeat="10 10"></a-plane> </a-entity>
         </a-entity>
 
-        <a-entity id="freddy" position="0 1.5 -12">
+        <a-entity id="freddy" position="0 1.5 0">
             <a-gltf-model src="#freddy-glb"></a-gltf-model>
-            <a-entity id="freddy-block"><a-box color="#532" height="1.8" width="0.8" depth="0.5"></a-box></a-entity>
+            <a-box color="brown" position="0 1 0" scale="1 2 1" visible="false"></a-box> 
         </a-entity>
 
         <a-entity id="player-rig" position="0 1.6 15" rotation="0 180 0">
@@ -229,10 +247,17 @@
     <script>
         // --- CONFIG ---
         const CAM_POS = {
-            '1A': '0 3 -8', '1B': '0 4 -2', '1C': '-6 2 -1',
-            '2A': '-4 3 6', '2B': '-4 2 13',
-            '4A': '4 3 6', '4B': '4 2 13', '6': '12 2 -2'
+            '1A': '0 3 0',   // Stage
+            '1B': '0 3 8',   // Dining
+            '4A': '7 3 15',  // Right Hall
+            '4B': '7 3 18',  // Right Corner
+            '2A': '-7 3 15', // Left Hall
+            '2B': '-7 3 18'  // Left Corner
         };
+
+        // Solo AI Path
+        const AI_PATH = ['1A', '1B', '4A', '4B', 'OFFICE'];
+        let freddyIndex = 0;
 
         let game = {
             active: false, mode: 'SOLO', role: 'GUARD',
@@ -241,44 +266,66 @@
         };
 
         let peer = null, conn = null;
-        // Version 3 Prefix
-        const PREFIX = "fnaf-fixed-v3-"; 
+        const PREFIX = "fnaf-final-fix-v4-"; 
         
-        // --- STUN SERVER CONFIG (FIXES FIREWALLS) ---
         const PEER_CONFIG = {
-            config: {
-                iceServers: [
-                    { urls: 'stun:stun.l.google.com:19302' },
-                    { urls: 'stun:stun1.l.google.com:19302' },
-                    { urls: 'stun:stun2.l.google.com:19302' }
-                ]
-            }
+            config: { iceServers: [ { urls: 'stun:stun.l.google.com:19302' } ] }
         };
 
         // --- CONTROLS ---
         window.addEventListener('keydown', (e) => { 
             if(e.code === 'KeyF') toggleFlashlight(); 
-            if(e.code === 'KeyJ') jumpscare(); 
         });
 
-        // --- MENU LOGIC ---
+        // --- MENU & INIT ---
         function openMultiMenu() {
             document.getElementById('menu').classList.add('hidden');
             document.getElementById('multi-menu').classList.remove('hidden');
-            document.getElementById('connect-error').style.display = "none";
+        }
+
+        function startSolo() {
+            game.mode = 'SOLO';
+            launchGame('GUARD');
+            // AI Loop for Solo Mode
+            setInterval(() => {
+                if(!game.active) return;
+                // Random chance to move every 5 seconds
+                if(Math.random() > 0.4) {
+                    moveFreddySolo();
+                }
+            }, 5000);
+        }
+
+        function moveFreddySolo() {
+            freddyIndex++;
+            if(freddyIndex >= AI_PATH.length) {
+                // He is at the office
+                if(!game.doors.R) { // Coming from Right Hall
+                    jumpscare();
+                } else {
+                    // Blocked
+                    freddyIndex = 0; // Reset
+                    document.getElementById('freddy').setAttribute('position', '0 1.5 0'); // Back to stage
+                }
+                return;
+            }
+            
+            // Move Visual
+            let loc = AI_PATH[freddyIndex];
+            if(loc === 'OFFICE') return; // Wait for next tick to attack
+            
+            let coords = CAM_POS[loc].split(' ');
+            // Adjust Y for model
+            document.getElementById('freddy').setAttribute('position', `${coords[0]} 1.5 ${coords[2]}`);
         }
 
         function setupHost() {
             const id = Math.floor(Math.random() * 9000 + 1000);
             if(peer) peer.destroy();
-            
-            // Add config to host
             peer = new Peer(PREFIX + id, PEER_CONFIG);
-            
             document.getElementById('multi-menu').classList.add('hidden');
             document.getElementById('lobby-screen').classList.remove('hidden');
             document.getElementById('lobby-code').innerText = id;
-
             peer.on('connection', (c) => {
                 conn = c;
                 conn.on('open', () => {
@@ -287,58 +334,49 @@
                     document.getElementById('start-match-btn').style.display = "block";
                     setupNetEvents();
                 });
-                conn.on('close', () => alert("Connection dropped. Check your internet or try Mobile Hotspot."));
             });
-            peer.on('error', (err) => alert("Host Error: " + err.type));
         }
 
         function joinLobby() {
             const inputId = document.getElementById('join-code').value.trim();
             if(inputId.length < 4) return;
-            
-            document.getElementById('connect-error').style.display = "none";
             const joinBtn = document.getElementById('join-btn');
-            joinBtn.innerText = "TRYING TO CONNECT...";
-            joinBtn.disabled = true;
-            
+            joinBtn.innerText = "CONNECTING...";
             if(peer) peer.destroy();
-            
-            // Add config to joiner
             peer = new Peer(null, PEER_CONFIG); 
-
-            peer.on('open', (myId) => {
-                const targetId = PREFIX + inputId;
-                // Force reliable connection
-                conn = peer.connect(targetId, { reliable: true });
-
+            peer.on('open', () => {
+                conn = peer.connect(PREFIX + inputId, { reliable: true });
                 conn.on('open', () => {
                     document.getElementById('multi-menu').classList.add('hidden');
                     document.getElementById('join-wait').classList.remove('hidden');
                     setupNetEvents();
                 });
-
-                // 20 Second Timeout
-                setTimeout(() => { 
-                    if(!conn || !conn.open) {
-                        handleConnectError(); 
-                    }
-                }, 20000); 
-            });
-
-            peer.on('error', (err) => {
-                console.error(err);
-                handleConnectError();
+                setTimeout(() => { if(!conn || !conn.open) alert("Connection Timed Out. Try Mobile Hotspot."); }, 15000);
             });
         }
 
-        function handleConnectError() {
-            if(peer) peer.destroy();
-            document.getElementById('join-btn').innerText = "JOIN LOBBY";
-            document.getElementById('join-btn').disabled = false;
-            document.getElementById('connect-error').innerText = "TIMED OUT. TRY MOBILE HOTSPOT.";
-            document.getElementById('connect-error').style.display = "block";
-            document.getElementById('join-wait').classList.add('hidden');
-            document.getElementById('multi-menu').classList.remove('hidden');
+        function setupNetEvents() {
+            document.getElementById('conn-status').style.borderColor = 'lime';
+            document.getElementById('conn-text').innerText = "CONNECTED";
+            document.getElementById('conn-text').style.color = "lime";
+            
+            conn.on('data', (data) => {
+                if(data.type === 'START') launchGame(data.role);
+                if(data.type === 'SYNC') { game.doors = data.doors; game.lights = data.lights; updateWorldVisuals(); }
+                if(data.type === 'MOVE') {
+                    const fred = document.getElementById('freddy');
+                    fred.setAttribute('position', data.pos);
+                    fred.setAttribute('visible', true);
+                    // Multiplayer Kill Logic
+                    if(data.z > 14 && game.role === 'GUARD') {
+                        // Check if he is Left or Right (simple check based on x)
+                        let isRight = data.x > 0;
+                        if(isRight && !game.doors.R) jumpscare();
+                        else if(!isRight && !game.doors.L) jumpscare();
+                    }
+                }
+                if(data.type === 'SCARE') jumpscare();
+            });
         }
 
         function selectRole(r) {
@@ -353,44 +391,6 @@
             let joinRole = (hostRole === 'GUARD') ? 'MONSTER' : 'GUARD';
             conn.send({ type: 'START', role: joinRole });
             launchGame(hostRole);
-        }
-
-        function setupNetEvents() {
-            setOnlineStatus(true);
-            conn.on('data', (data) => {
-                if(data.type === 'START') launchGame(data.role);
-                if(data.type === 'SYNC') { game.doors = data.doors; game.lights = data.lights; updateWorldVisuals(); }
-                if(data.type === 'MOVE') {
-                    const fred = document.getElementById('freddy');
-                    fred.setAttribute('position', data.pos);
-                    fred.setAttribute('visible', true);
-                    if(data.z > 14 && game.role === 'GUARD') {
-                        if(!game.doors.L && !game.doors.R) jumpscare();
-                    }
-                }
-                if(data.type === 'SCARE') jumpscare();
-            });
-            conn.on('close', () => { setOnlineStatus(false); alert("Opponent Disconnected"); location.reload(); });
-        }
-
-        function setOnlineStatus(isOnline) {
-            const el = document.getElementById('conn-status');
-            const dot = el.querySelector('.status-dot');
-            const txt = document.getElementById('conn-text');
-            if(isOnline) {
-                el.style.borderColor = 'lime'; dot.style.background = 'lime'; txt.innerText = 'CONNECTED'; txt.style.color = 'lime';
-            } else {
-                el.style.borderColor = '#333'; dot.style.background = 'red'; txt.innerText = 'OFFLINE'; txt.style.color = '#555';
-            }
-        }
-
-        function startSolo() {
-            game.mode = 'SOLO';
-            launchGame('GUARD');
-            setInterval(()=>{
-                if(!game.active) return;
-                if(Math.random()>0.7 && !game.doors.L) jumpscare();
-            }, 10000); 
         }
 
         function launchGame(role) {
@@ -409,16 +409,19 @@
                 document.getElementById('nv-overlay').style.display = 'block';
                 document.getElementById('freddy').setAttribute('visible', false);
                 const rig = document.getElementById('player-rig');
-                rig.setAttribute('wasd-controls', 'enabled: true; acceleration: 20'); 
-                rig.setAttribute('position', '0 1.6 -12');
+                rig.setAttribute('wasd-controls', 'enabled: true; acceleration: 25'); 
+                rig.setAttribute('position', '0 1.6 0'); // Start on stage
+                
+                // Add Night Vision Light
                 const nvLight = document.createElement('a-entity');
-                nvLight.setAttribute('light', 'type: spot; color: #88ff88; intensity: 1.5; angle: 80; distance: 40; penumbra: 0.5');
+                nvLight.setAttribute('light', 'type: spot; color: #88ff88; intensity: 2; angle: 80; distance: 40;');
                 rig.querySelector('#head').appendChild(nvLight);
                 document.querySelector('a-scene').setAttribute('fog', 'density: 0');
+
                 setInterval(() => {
                     if(!game.active) return;
                     const pos = rig.getAttribute('position');
-                    conn.send({ type: 'MOVE', pos: pos, z: pos.z });
+                    conn.send({ type: 'MOVE', pos: pos, x: pos.x, z: pos.z });
                 }, 100);
             }
         }
@@ -444,16 +447,6 @@
             document.getElementById('pwr-val').innerText = Math.floor(game.power);
         }
 
-        function toggleFlashlight() {
-            if(game.power <= 0 || game.role !== 'GUARD') return;
-            game.flashlight = !game.flashlight;
-            const intensity = game.flashlight ? 2.5 : 0;
-            document.getElementById('flashlight').setAttribute('intensity', intensity);
-            document.getElementById('sfx-blip').play();
-            document.getElementById('flash-btn').style.background = game.flashlight ? "white" : "rgba(255,255,255,0.1)";
-            document.getElementById('flash-btn').style.color = game.flashlight ? "black" : "white";
-        }
-
         function clickDoor(side) {
             if(game.power <= 0 || game.role !== 'GUARD') return;
             game.doors[side] = !game.doors[side];
@@ -471,9 +464,23 @@
         }
 
         function updateWorldVisuals() {
-            document.getElementById('door-L').setAttribute('visible', game.doors.L);
-            document.getElementById('door-R').setAttribute('visible', game.doors.R);
+            // SLIDING DOORS
+            const dL = document.getElementById('door-L');
+            const dR = document.getElementById('door-R');
+            
+            // If door is closed, move it down (y=2). If open, move it up (y=5).
+            dL.setAttribute('position', `-3.9 ${game.doors.L ? 2 : 5} 0`);
+            dR.setAttribute('position', `3.9 ${game.doors.R ? 2 : 5} 0`);
+            
             if(game.lights.L || game.lights.R) document.getElementById('sfx-blip').play();
+        }
+
+        function toggleFlashlight() {
+            if(game.power <= 0 || game.role !== 'GUARD') return;
+            game.flashlight = !game.flashlight;
+            document.getElementById('flashlight').setAttribute('intensity', game.flashlight ? 2.5 : 0);
+            document.getElementById('flash-btn').style.background = game.flashlight ? "white" : "rgba(255,255,255,0.1)";
+            document.getElementById('flash-btn').style.color = game.flashlight ? "black" : "white";
         }
 
         function toggleMonitor() {
@@ -481,6 +488,7 @@
             game.monitor = !game.monitor;
             const ui = document.getElementById('cam-ui');
             const rig = document.getElementById('player-rig');
+            
             if(game.monitor) {
                 if(game.flashlight) toggleFlashlight(); 
                 ui.style.display = 'block';
@@ -490,6 +498,7 @@
             } else {
                 ui.style.display = 'none';
                 document.getElementById('mon-txt').innerText = "OPEN MONITOR";
+                // Return to Office
                 rig.setAttribute('position', '0 1.6 15');
                 rig.setAttribute('rotation', '0 180 0');
                 document.querySelector('a-scene').setAttribute('fog', 'density: 0.15');
@@ -500,11 +509,15 @@
             document.querySelectorAll('.map-btn').forEach(b=>b.classList.remove('map-active'));
             document.getElementById('m-'+id.toLowerCase()).classList.add('map-active');
             document.getElementById('cam-title').innerText = "CAM " + id;
+            
             const rig = document.getElementById('player-rig');
             const parts = CAM_POS[id].split(' ');
             rig.setAttribute('position', `${parts[0]} ${parts[1]} ${parts[2]}`);
-            if(id === '6') document.querySelector('a-scene').setAttribute('fog', 'density: 1.0');
-            else document.querySelector('a-scene').setAttribute('fog', 'density: 0.15');
+            rig.setAttribute('rotation', '0 0 0'); // Look forward
+            
+            document.querySelector('a-scene').setAttribute('fog', 'density: 0.15');
+            
+            // Static FX
             const fx = document.getElementById('fx-static');
             fx.style.opacity = 0.3; setTimeout(()=>fx.style.opacity=0.03, 150);
             document.getElementById('sfx-blip').play();
@@ -516,8 +529,7 @@
             document.getElementById('hud').style.display='none';
             document.getElementById('cam-ui').style.display='none';
             document.getElementById('scare-screen').style.display='flex';
-            const audio = document.getElementById('sfx-scare');
-            audio.currentTime = 0; audio.play();
+            document.getElementById('sfx-scare').play();
             setTimeout(()=>location.reload(), 3000);
         }
 
